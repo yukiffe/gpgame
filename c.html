@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            SINGLECODE
+        </title>
+    </head>
+    <body>
+        <canvas id = "game">
+            
+        </canvas>
+        <div class = "status" id = "x"></div>
+        <div class = "status" id = "z"></div>
+    </body>
+</html>
+
+<style>
+    #game{
+        width: 1024px;
+        height: 512px;
+        background-color: azure;
+    }
+</style>
+
+<script type="text/javascript">
+    class Object{
+        _image = new Image();
+        constructor(x = 0, z = 0, y = 0){
+            this._x = x;
+            this._z = z;
+            this._y = y;
+        }
+    }
+    class Entity extends Object{
+        _moveIndex = [];
+        constructor(speed){
+            super();
+            this._moveIndex["ArrowUp"] = false;
+            this._moveIndex["ArrowLeft"] = false;
+            this._moveIndex["ArrowDown"] = false;
+            this._moveIndex["ArrowRight"] = false;
+            this._moveSpeed = speed;
+            const interval = setInterval(()=>{
+                if(this._moveIndex["ArrowUp"] && this._z >= 10) this._z-=10;
+                if(this._moveIndex["ArrowDown"] && this._z <= 512) this._z+=10;
+                if(this._moveIndex["ArrowRight"] && this._x <= 512) this._x+=10; // 나중에 256
+                if(this._moveIndex["ArrowLeft"] && this._x >= 10) this._x-=10;
+            }, 100);
+        }
+
+    }
+    class Actor extends Entity{
+        constructor(){
+            super(10, 10);
+            this._image.src = "./texture.png";
+            window.addEventListener("keydown", (e) => {
+                this._moveIndex[e.key] = true;
+            });
+            window.addEventListener("keyup", (e) => {
+                this._moveIndex[e.key] = false;
+            });
+        }
+    }
+    class Game{
+        //setting
+        speed = 60 // 프레임 n/1000
+        //end
+        canvas = document.getElementById('game');
+        ctx = this.canvas.getContext("2d");
+        constructor(){
+            this.arr = [256][256];
+            this._actor = new Actor();
+            const interval = setInterval(()=>{
+                this.animate();
+                this.draw();
+            }, this.speed)
+        }
+        animate(){
+        }
+        draw(){
+            
+            let x = this._actor._x;
+            let z = this._actor._z;
+            if(x > 128) x = 128;
+            if(z > 64) z = 64;
+            if(this._actor._x > 512 - 128) x = - 512 + 128 + 128 + this._actor._x;
+            if(this._actor._z > 512 - 64) z = - 512 + 64 + 64+ this._actor._z;
+
+            document.getElementById("x").textContent = `Pos'${this._actor._x}', Pix'${x}'`; // 64, 128
+            document.getElementById("z").textContent = `Pos'${this._actor._z}', Pix'${x}'`;
+
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(this._actor._image, x, z);
+
+        }
+    }
+    const game = new Game();
+</script>
